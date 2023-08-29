@@ -4,7 +4,7 @@ const authHtml = `<button class="connect_button" onclick="doAuth()">Authenticate
 
 function doAuth() {
   const CLIENT_ID = '131SMM3B5UEI3AAM1LO5LHK5W4TWZUWZYNUXTS3CHGFTLJXT';
-  const REDIRECT_URI = 'http://localhost:8080/auth.html'; // 例: http://yourwebsite.com/callback
+  const REDIRECT_URI = 'https://amay077.github.io/swarm-check-ins/auth.html'; // 例: http://yourwebsite.com/callback
   const authURL = `https://foursquare.com/oauth2/authenticate?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${REDIRECT_URI}`;
   window.location.href = authURL;
 };
