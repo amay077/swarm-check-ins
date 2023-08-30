@@ -22,11 +22,23 @@ async function copyToClipboard(id, venue_name, address) {
   .then(response => response.json());
   console.log(`FIXME h_oku 後で消す ${this.constructor.name} -> copyToClipboard -> checkinDetail:`, checkinDetail);
 
-  const text = `I'm at ${venue_name} in ${address} ${checkinDetail.response.checkin.checkinShortUrl}`;
 
-  // checkinDetail をクリップボードにコピーする
-  navigator.clipboard.writeText(text);
+  if (!window.navigator.canShare) {
+    const text = `I'm at ${venue_name} in ${address} ${checkinDetail.response.checkin.checkinShortUrl}`;
+    navigator.clipboard.writeText(text);
+    alert('クリップボードにコピーしました。');
+    return;
+  }
 
+  try {
+    await window.navigator.share({
+      title: 'Share to ...',
+      text: `I'm at ${venue_name} in ${address}`,
+      url: checkinDetail.response.checkin.checkinShortUrl,
+    });
+  } catch (e) {
+    console.log(e.message);
+  }
 }
 
 // localstorage からアクセストークンを取得する
@@ -38,8 +50,9 @@ async function makeContents() {
   const data = await response.json();
 
   const checkins = data.response.checkins.items;
-  console.log(`FIXME h_oku 後で消す ${this.constructor.name} -> makeContents -> checkins:`, checkins);
-  // document.getElementById('checkins').textContent = JSON.stringify(checkins, null, 2);
+  
+  const title = window.navigator.canShare ? `Share...` : 'Copy to clipboard';
+  
   return `
   <div class="header">
     <button class="disconnect_button" onclick="disconnect()">Disconnect</button>
@@ -51,7 +64,7 @@ async function makeContents() {
       <span class="venue_name">${x.venue.name}</span>
       <span class="venue_address">${x.venue.location.formattedAddress[1]}</span>
       <span class="checkin_at">${new Date(x.createdAt * 1000).toISOString()}</span>
-      <button class="share_button" onclick="copyToClipboard('${x.id}', '${x.venue.name}', '${x.venue.location.formattedAddress[1]}')">Copy to Clipboard</button>
+      <button class="share_button" onclick="copyToClipboard('${x.id}', '${x.venue.name}', '${x.venue.location.formattedAddress[1]}')">${title}</button>
     </div>`).join('')}
   </div>`;
 }
