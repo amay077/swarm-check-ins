@@ -31,11 +31,8 @@ async function copyToClipboard(id, venue_name, address) {
   }
 
   try {
-    await window.navigator.share({
-      title: 'Share to ...',
-      text: `I'm at ${venue_name} in ${address}`,
-      url: checkinDetail.response.checkin.checkinShortUrl,
-    });
+    const text = `I'm at ${venue_name} in ${address} ${checkinDetail.response.checkin.checkinShortUrl}`;
+    await window.navigator.share({ text });
   } catch (e) {
     console.log(e.message);
   }
