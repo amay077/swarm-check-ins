@@ -46,7 +46,8 @@ async function makeContents() {
   </div>
   
   <div class="checkin_items">
-    ${checkins.map(x => `<div class="checkin_item">
+    ${checkins.map(x => `
+    <div class="checkin_item">
       <span class="venue_name">${x.venue.name}</span>
       <span class="venue_address">${x.venue.location.formattedAddress[1]}</span>
       <span class="checkin_at">${new Date(x.createdAt * 1000).toISOString()}</span>
