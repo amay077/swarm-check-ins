@@ -5,7 +5,7 @@ const code = urlParams.get('code');
 
 if (code) {
   (async () => {
-    const res = await fetch(`https://swarm-check-ins-api.netlify.app/.netlify/functions/token?code=${code}`)
+    const res = await fetch(`${API_ENDPOINT}/token?code=${code}`)
     const jsonData = await res.json();
   
     const accessToken = jsonData.access_token;

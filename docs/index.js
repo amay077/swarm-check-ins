@@ -1,10 +1,12 @@
 const body = document.getElementById('body');
 
-const authHtml = `<button class="connect_button" onclick="doAuth()">Authenticate with Foursquare</button>`;
+const authHtml = `
+<div class="connect_container">
+  <button class="connect_button" onclick="doAuth()">Connect to Foursquare</button>
+</div>
+`;
 
 function doAuth() {
-  const CLIENT_ID = '131SMM3B5UEI3AAM1LO5LHK5W4TWZUWZYNUXTS3CHGFTLJXT';
-  const REDIRECT_URI = 'https://amay077.github.io/swarm-check-ins/auth.html'; // 例: http://yourwebsite.com/callback
   const authURL = `https://foursquare.com/oauth2/authenticate?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${REDIRECT_URI}`;
   window.location.href = authURL;
 };
@@ -16,8 +18,6 @@ function disconnect() {
 };
 
 async function copyToClipboard(id, venue_name, address) {
-  console.log(`FIXME h_oku 後で消す ${this.constructor.name} -> checkinId:`, id);
-
   const checkinDetail = await fetch(`https://api.foursquare.com/v2/checkins/${id}?oauth_token=${accessToken}&v=20230823`)
   .then(response => response.json());
   console.log(`FIXME h_oku 後で消す ${this.constructor.name} -> copyToClipboard -> checkinDetail:`, checkinDetail);
@@ -51,19 +51,20 @@ async function makeContents() {
   const title = window.navigator.canShare ? `Share...` : 'Copy to clipboard';
   
   return `
-  <div class="header">
-    <button class="disconnect_button" onclick="disconnect()">Disconnect</button>
-  </div>
-  
   <div class="checkin_items">
     ${checkins.map(x => `
     <div class="checkin_item">
       <span class="venue_name">${x.venue.name}</span>
       <span class="venue_address">${x.venue.location.formattedAddress[1]}</span>
-      <span class="checkin_at">${new Date(x.createdAt * 1000).toISOString()}</span>
+      <span class="checkin_at">${new Date(x.createdAt * 1000).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })}</span>
       <button class="share_button" onclick="copyToClipboard('${x.id}', '${x.venue.name}', '${x.venue.location.formattedAddress[1]}')">${title}</button>
     </div>`).join('')}
-  </div>`;
+  </div>
+  <div class="footer">
+    <button class="disconnect_button" onclick="disconnect()">Disconnect</button>
+  </div>
+
+  `;
 }
 
 (async () => {

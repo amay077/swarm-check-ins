@@ -2,6 +2,9 @@
 body {
   font-family: Arial, sans-serif;
   line-height: 1.6;
+  padding-left: 16px;
+  padding-right: 16px;
+
 }
 
 /* コンテナ */
@@ -11,7 +14,8 @@ body {
   gap: 16px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 16px;
+  padding-top: 16px;
+  padding-bottom: 16px;
 }
 
 /* 各アイテム */
@@ -53,5 +57,37 @@ body {
 }
 
 .share_button:hover {
+  background-color: #0056b3;
+}
+
+.connect_container {
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  justify-content: center;
+}
+
+.connect_button {
+  background-color: #007BFF; /* 青色 */
+  font-size: 1.2rem;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.disconnect_button {
+  background-color: #007BFF; /* 青色 */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.disconnect_button:hover {
   background-color: #0056b3;
 }
