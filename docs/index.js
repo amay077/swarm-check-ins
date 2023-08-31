@@ -44,6 +44,10 @@ const accessToken = localStorage.getItem('sci_accessToken');
 async function makeContents() {
   // アクセストークンを使用してチェックイン一覧を取得する
   const response = await fetch(`https://api.foursquare.com/v2/users/self/checkins?oauth_token=${accessToken}&v=20230823&limit=100`);
+  if (!response.ok) {
+    disconnect();
+    return;
+  }
   const data = await response.json();
 
   const checkins = data.response.checkins.items;
