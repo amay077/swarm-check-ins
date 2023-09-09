@@ -19,6 +19,11 @@
     const data = await response.json();
     checkins = data.response.checkins.items;
 
+    checkins.map((x: any) => {
+      x.appAddress = `${x.venue.location.city}, ${x.venue.location.state}`;
+      x.appPrivate = x.visibility === 'private';
+    });
+
   });  
 
   const disconnect = () => {
@@ -27,21 +32,25 @@
     window.location.href = '/';    
   };
 
-  const copyToClipboard = (id: string, venue_name: string, address: string) => {
+  const copyToClipboard = (checkin: any) => {
 
     (async () => {
-      const checkinDetail = await fetch(`https://api.foursquare.com/v2/checkins/${id}?oauth_token=${accessToken}&v=20230823`)
+      const checkinDetail = await fetch(`https://api.foursquare.com/v2/checkins/${checkin.id}?oauth_token=${accessToken}&v=20230823`)
         .then(response => response.json());
 
+      const shout = checkin.shout == null ? '' : `${checkin.shout} / `;
+
+      const text = `${shout}I'm at ${checkin.venue.name} in ${checkin.appAddress} ${checkinDetail.response.checkin.checkinShortUrl}`;
+
       if (!window.navigator.canShare) {
-        const text = `I'm at ${venue_name} in ${address} ${checkinDetail.response.checkin.checkinShortUrl}`;
-        navigator.clipboard.writeText(text);
-        alert('クリップボードにコピーしました。');
+        const resText = prompt('クリップボードにコピーしますか？', text);
+        if (resText != null) {
+          await navigator.clipboard.writeText(resText);
+        }
         return;
       }
 
       try {
-        const text = `I'm at ${venue_name} in ${address} ${checkinDetail.response.checkin.checkinShortUrl}`;
         await window.navigator.share({ text });
       } catch (e) {
         console.log(e);
@@ -56,9 +65,18 @@
   {#each checkins as x, i}
   <div class="checkin_item">
     <span class="venue_name">{x.venue.name}</span>
-    <span class="venue_address">{x.venue.location.formattedAddress[1]}</span>
+    <span class="venue_address">{x.appAddress}</span>
     <span class="checkin_at">{new Date(x.createdAt * 1000).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })}</span>
-    <button class="share_button" on:click="{() => copyToClipboard(x.id, x.venue.name, x.venue.location.formattedAddress[1])}">{title}</button>
+
+    {#if x.shout != null}
+      <span class="shout">「{x.shout}」</span>
+    {/if}
+
+    {#if x.appPrivate}
+      <span class="share_private">非公開</span>
+    {:else}    
+      <button class="share_button" on:click="{() => copyToClipboard(x)}">{title}</button>
+    {/if}
   </div>  
   {/each}  
 </div>

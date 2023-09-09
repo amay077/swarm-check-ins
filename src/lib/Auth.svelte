@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { CLIENT_ID, REDIRECT_URI } from "../config";
+  import { Config } from "../config";
 
 
   // const CLIENT_ID = 'UBWPEWEM3L1XHICEZ0TJWOHFQ3QZ0KC3XZPHUXRRVWL044ZU';
@@ -11,7 +11,7 @@
   // const API_ENDPOINT = `http://localhost:9999/.netlify/functions`;
 
   const doAuth =() => {
-    const authURL = `https://foursquare.com/oauth2/authenticate?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${REDIRECT_URI}`;
+    const authURL = `https://foursquare.com/oauth2/authenticate?client_id=${Config.CLIENT_ID}&response_type=code&redirect_uri=${Config.REDIRECT_URI}`;
     window.location.href = authURL;
   };
 

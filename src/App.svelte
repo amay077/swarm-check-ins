@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { API_ENDPOINT } from './config';
+  import { Config } from './config';
   import Auth from './lib/Auth.svelte';
   import MainContent from './lib/MainContent.svelte';
 
@@ -12,7 +12,7 @@
   
   } else if (code) {
     (async () => {
-      const res = await fetch(`${API_ENDPOINT}/token?code=${code}`)
+      const res = await fetch(`${Config.API_ENDPOINT}/token?code=${code}`)
       const jsonData = await res.json();
     
       const url = new URL(window.location.href);
@@ -46,6 +46,7 @@
 </script>
 
 <main>
+  <h1>Swarm Recent 100 check-in(s)</h1>
 
   {#if accessToken == null}
     {#if code == null}
