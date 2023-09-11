@@ -46,7 +46,7 @@
 </script>
 
 <main>
-  <h1>Swarm Recent 100 check-in(s)</h1>
+  <h1>Share I'm at</h1>
 
   {#if accessToken == null}
     {#if code == null}
