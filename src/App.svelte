@@ -44,7 +44,7 @@
 </script>
 
 <main>
-  <h1>Share I'm at</h1>
+  <h1>SHARE I'M AT</h1>
 
   {#if accessToken == null}
     {#if code == null}
