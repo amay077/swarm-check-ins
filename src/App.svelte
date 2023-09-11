@@ -18,10 +18,8 @@
       const url = new URL(window.location.href);
       const params = new URLSearchParams(url.search);
       params.delete('code');
-      url.pathname = '';
       url.hash = '';
       url.search = params.toString();
-      console.log(`FIXME h_oku 後で消す -> url.search:`, url);
       history.replaceState(null, '', url.toString());
 
       accessToken = jsonData.access_token;
