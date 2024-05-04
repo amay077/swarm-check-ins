@@ -11,6 +11,12 @@ const config_dev = {
         server: 'mastodon.cloud',
         MASTODON_CLIENT_ID: 'flr82v9ah3bNegi3f6CUEvG7Vrz02HtIJzqswztaFnQ',
         MASTODON_CLIENT_SECRET: 'rpWnOOmhOnd4oHscuEvd55NhuG1gqc4S_7uXsFHsJr0',
+      },
+      mstdn_jp: {
+        name: 'mstdn.jp(dev)',
+        server: 'mstdn.jp',
+        MASTODON_CLIENT_ID: 'gIAagB7-8KP6XEW1xHW3Wh3UjOH9A-ircwMlZX-80xw',
+        MASTODON_CLIENT_SECRET: 'FlJm2oIaLBEJi4uWGk51ke_VPiwYB5lM5vCB5J5Cf9E',
       }
     }
   }
@@ -28,6 +34,12 @@ const config_prod = {
         server: 'mastodon.cloud',
         MASTODON_CLIENT_ID: '8G4fffNV00gj5iWLxO7dB91JVnoAY6puZ--9d0atrc4',
         MASTODON_CLIENT_SECRET: 'xW_xpjTdNurUBS-aGMrkx-zsxUeuboaOhs4VufE1LEc',
+      },
+      mstdn_jp: {
+        name: 'mstdn.jp',
+        server: 'mstdn.jp',
+        MASTODON_CLIENT_ID: 'gIAagB7-8KP6XEW1xHW3Wh3UjOH9A-ircwMlZX-80xw',
+        MASTODON_CLIENT_SECRET: 'FlJm2oIaLBEJi4uWGk51ke_VPiwYB5lM5vCB5J5Cf9E',
       }
     }
   }}

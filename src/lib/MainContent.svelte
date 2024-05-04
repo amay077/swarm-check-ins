@@ -86,8 +86,9 @@
       
       const text = `${shout}I'm at ${checkin.venue.name} in ${checkin.appAddress} ${checkinDetail.response.checkin.checkinShortUrl}`;
 
-      const MASTODON_HOST = 'mastodon.cloud';
-      const ACCESS_TOKEN = JSON.parse(localStorage.getItem('sci_mastodonAccessToken') ?? '{}').access_token;
+      const settings = JSON.parse(localStorage.getItem('sci_mastodonAccessToken') ?? '{}')
+      const MASTODON_HOST = settings.server;
+      const ACCESS_TOKEN = settings.access_token_response.access_token;
       const status = text;
       const res = await fetch(`https://${MASTODON_HOST}/api/v1/statuses`, {
         method: 'POST',
@@ -144,7 +145,7 @@
     }
     
     const resJson = await res.json();
-    localStorage.setItem('sci_mastodonAccessToken', JSON.stringify(resJson));
+    localStorage.setItem('sci_mastodonAccessToken', JSON.stringify({ server: settings.server, access_token_response: resJson }));
     mastodonAccessToken = JSON.stringify(resJson);
 
     alert('Mastodon に接続しました。toot ボタンで投稿できます。');
