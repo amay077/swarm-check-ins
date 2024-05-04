@@ -89,14 +89,23 @@
       const MASTODON_HOST = 'mastodon.cloud';
       const ACCESS_TOKEN = JSON.parse(localStorage.getItem('sci_mastodonAccessToken') ?? '{}').access_token;
       const status = text;
-      await fetch(`https://${MASTODON_HOST}/api/v1/statuses`, {
+      const res = await fetch(`https://${MASTODON_HOST}/api/v1/statuses`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${ACCESS_TOKEN}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ status }),
-      }); 
+      });
+
+      if (res.ok) {
+        console.log(`toot -> res:`, res);
+        alert('投稿しました。');
+      } else {
+        console.error(`toot -> res:`, res);
+        alert(`投稿できませんでした。(${res.status})`);
+      }
+            
     })();
   };  
 
@@ -137,6 +146,8 @@
     const resJson = await res.json();
     localStorage.setItem('sci_mastodonAccessToken', JSON.stringify(resJson));
     mastodonAccessToken = JSON.stringify(resJson);
+
+    alert('Mastodon に接続しました。toot ボタンで投稿できます。');
   };
 
 </script>
