@@ -132,7 +132,9 @@
     </div>
     {#if expandedMastodon}
     <div class="p-2">
-      <MastodonConnection />
+      <MastodonConnection 
+        bind:mastodonAccessToken={mastodonAccessToken}
+      />
     </div>
     {/if}
   </div>

@@ -4,7 +4,7 @@
   const mastodonTargets = Object.values(Config.post_targets.mastodon);
   let mastodonServer = 'mastodon.cloud';
   let mastodonCode = '';
-  let mastodonAccessToken: string = localStorage.getItem('sci_mastodonAccessToken') ?? '';
+  export let mastodonAccessToken: string = localStorage.getItem('sci_mastodonAccessToken') ?? '';
 
   const onConnectToMastodon = () => {
     const settings = mastodonTargets.find(x => x.server === mastodonServer);
