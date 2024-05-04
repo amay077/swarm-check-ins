@@ -44,7 +44,7 @@
 </script>
 
 <main>
-  <h1>SHARE I'm AT</h1>
+  <h1 class="mt-2">SHARE I'm AT</h1>
 
   {#if accessToken == null}
     {#if code == null}
