@@ -35,7 +35,7 @@ jobs:
       - run: git pull
       - run: echo "生成した SPA を publish の docs にコピー"
       - run: rm -rf ./docs/*
-      - run: cp -r ./dist/spa/* ./docs
+      - run: cp -r ./dist/* ./docs
 
       - run: echo "publish へ push してサイト更新"
       - run: git config --global user.email "bot@github.com"
