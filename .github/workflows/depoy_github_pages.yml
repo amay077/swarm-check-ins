@@ -1,0 +1,45 @@
+name: PUBLISH TO GITHUB PAGES
+
+on:
+  push:
+    branches:
+      - main
+
+defaults:
+  run:
+    working-directory: ./
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [17.x]
+    steps:
+      - run: echo "全てのブランチを clone"
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: publish-site
+        uses: actions/setup-node@v1
+        with:
+          node-version: v18.17.1
+      - run: echo "SPA を生成"
+      - run: npm ci
+        working-directory: ./
+      - run: npm run build
+        working-directory: ./
+
+      - run: echo "pub ブランチに変更（GitHub Pages）"
+      - run: git checkout publish --force
+      - run: git pull
+      - run: echo "生成した SPA を publish の docs にコピー"
+      - run: rm -rf ./docs/*
+      - run: cp -r ./dist/spa/* ./docs
+
+      - run: echo "publish へ push してサイト更新"
+      - run: git config --global user.email "bot@github.com"
+      - run: git config --global user.name "BOT"
+      - run: git add ./docs
+      - run: git commit -m "publish site"
+      - run: git push
