@@ -25,7 +25,7 @@ const config_prod = {
     mastodon: {
       mastodon_cloud: {
         name: 'Mastodon.cloud',
-        server: 'Mastodon.cloud',
+        server: 'mastodon.cloud',
         MASTODON_CLIENT_ID: '8G4fffNV00gj5iWLxO7dB91JVnoAY6puZ--9d0atrc4',
         MASTODON_CLIENT_SECRET: 'xW_xpjTdNurUBS-aGMrkx-zsxUeuboaOhs4VufE1LEc',
       }
