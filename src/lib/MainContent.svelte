@@ -1,18 +1,31 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import MastodonConnection from "./MastodonConnection.svelte";
+  import { BskyAgent, RichText } from "@atproto/api";
+  import BlueSkyConnection from "./BlueSkyConnection.svelte";
+  import { loadPostSetting, savePostSetting, type SettingDataBluesky, type SettingDataMastodon, type SettingType } from "./func";
 
   // localstorage からアクセストークンを取得する
   const accessToken = localStorage.getItem('sci_accessToken');
 
-  let mastodonAccessToken: string = localStorage.getItem('sci_mastodonAccessToken') ?? '';
-  let expandedMastodon = false;
+  const postSettings: {
+    mastodon: SettingDataMastodon | null,
+    bluesky: SettingDataBluesky | null,
+  } = {
+    mastodon: loadPostSetting('mastodon'),
+    bluesky: loadPostSetting('bluesky'),
+  };
 
-
+  const postTo: { [K in SettingType]: boolean } = {
+    mastodon: postSettings?.mastodon?.enabled ?? false,
+    bluesky: postSettings?.bluesky?.enabled ?? false,
+  };
+  
   const title = window.navigator?.canShare != null ? `Share...` : 'Copy to clipboard';
   let checkins: any[] = [];
 
   let loading = true;
+  let posting = false;
 
   onMount(async () => {
     console.log(`onMount`);
@@ -73,16 +86,55 @@
     })();
   };
 
-  const toot = (checkin: any) => {
-    (async () => {
-      const checkinDetail = await fetch(`https://api.foursquare.com/v2/checkins/${checkin.id}?oauth_token=${accessToken}&v=20230823`)
+  const post = async (checkin: any) => {
+    posting = true;
+
+    const checkinDetail = await fetch(`https://api.foursquare.com/v2/checkins/${checkin.id}?oauth_token=${accessToken}&v=20230823`)
         .then(response => response.json());
 
-      const shout = checkin.shout == null ? '' : `${checkin.shout} / `;
-      
-      const text = `${shout}I'm at ${checkin.venue.name} in ${checkin.appAddress} ${checkinDetail.response.checkin.checkinShortUrl}`;
+    const shout = checkin.shout == null ? '' : `${checkin.shout} / `;
+    
+    const text = `${shout}I'm at ${checkin.venue.name} in ${checkin.appAddress} ${checkinDetail.response.checkin.checkinShortUrl}`;
+    const errors: string[] = [];
 
-      const settings = JSON.parse(localStorage.getItem('sci_mastodonAccessToken') ?? '{}')
+    const enableTypes = Array.from(Object.entries(postTo)).filter(([_, v]) => v).map(([k, v]) => (k as SettingType));
+    for (const type of enableTypes) {
+      switch (type) {
+      case 'mastodon':
+        if (!(await postToMastodon(text))) {
+          errors.push('Mastodon');
+        }
+        break;
+      case 'bluesky':
+        if (!(await postToBlueSky(text))) {
+          errors.push('BlueSky');
+        }
+        break;
+      }
+    }
+
+    if (errors.length == 0) {
+      alert('投稿しました。');
+
+      for (const [k, v] of Object.entries(postSettings)) {
+        const type = k as SettingType;
+        if (v != null) {
+          v.enabled = postTo[type] == true;
+          savePostSetting(v);
+        }
+      }
+    
+    } else {
+      alert(`${errors.join(', ')}}に投稿できませんでした。`);
+    }
+
+    posting = false;
+
+  };  
+
+  const postToMastodon = async (text: string): Promise<boolean> => {
+    try {
+      const settings = postSettings.mastodon!;
       const MASTODON_HOST = settings.server;
       const ACCESS_TOKEN = settings.access_token_response.access_token;
       const status = text;
@@ -96,15 +148,52 @@
       });
 
       if (res.ok) {
-        console.log(`toot -> res:`, res);
-        alert('投稿しました。');
       } else {
-        console.error(`toot -> res:`, res);
-        alert(`投稿できませんでした。(${res.status})`);
+        return false;
       }
-            
-    })();
+      return true;       
+    } catch (error) {
+      console.error(`postToMastodon -> error:`, error);
+      return false;       
+    }
   };  
+
+  const postToBlueSky = async (text: string): Promise<boolean> => {
+    try {
+      const agent = new BskyAgent({
+        service: 'https://bsky.social'
+      });
+  
+      // creating richtext
+      const rt = new RichText({
+        text,
+      });
+  
+      await rt.detectFacets(agent) // automatically detects mentions and links
+      const postRecord = {
+        $type: 'app.bsky.feed.post',
+        text: rt.text,
+        facets: rt.facets,
+        createdAt: new Date().toISOString(),
+      };    
+  
+      await agent.login({
+        identifier: 'okuokuoku@gmail.com',
+        password: 'k36i-nsi2-in2j-mg34'
+      });
+  
+      await agent.post(postRecord);       
+      return true;
+    } catch (error) {
+      console.error(`postToBlueSky -> error:`, error);
+      return false;
+    }
+  }; 
+
+  const onChangePostSettings = () => {
+    postSettings.mastodon = loadPostSetting('mastodon');
+    postSettings.bluesky = loadPostSetting('bluesky');
+  };
 </script>
 
 
@@ -112,31 +201,17 @@
   <span class="loading">loading..</span>
 {:else}
 
-  <div>
-
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <div class="d-flex flex-row gap-1 align-items-center" style="cursor: pointer;"  on:click={() => {
-      expandedMastodon = !expandedMastodon;
-    }}>
-      <h5 class="mb-0">Mastodon</h5>
-      {#if !expandedMastodon}
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
-        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
-      </svg>
-      {:else}
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-chevron-down" viewBox="0 0 16 16">
-        <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
-      </svg>
-      {/if}
+  <div class="d-flex flex-column gap-2">
+    <div class="form-check mb-0 d-flex flex-row align-items-start gap-1">
+      <input class="mt-1 form-check-input" type="checkbox" bind:checked={postTo.mastodon} id="mastodon" disabled={postSettings.mastodon == null}>
+      <MastodonConnection on:onChange={onChangePostSettings} />
     </div>
-    {#if expandedMastodon}
-    <div class="p-2">
-      <MastodonConnection 
-        bind:mastodonAccessToken={mastodonAccessToken}
-      />
+    <div class="form-check mb-0 d-flex flex-row align-items-start gap-1">
+      <input class="mt-1 form-check-input" type="checkbox" bind:checked={postTo.bluesky} id="bluesky" disabled={postSettings.bluesky == null}>
+      <div class="w-100">
+        <BlueSkyConnection on:onChange={onChangePostSettings} />
+      </div>
     </div>
-    {/if}
   </div>
 
 
@@ -158,17 +233,24 @@
         <button class="share_button" on:click="{() => copyToClipboard(x)}">
           {title}
         </button>
-
-        {#if (mastodonAccessToken?.length ?? 0) > 0}
-        <button class="share_button" on:click="{() => toot(x)}">
+        
+        {#if Array.from(Object.values(postTo)).some(x => x)}
+        <button class="share_button" on:click="{() => post(x)}" disabled={posting || Array.from(Object.values(postTo)).every(x => !x)}>
           <div class="d-flex flex-row align-items-center gap-1">
+            {#if postSettings.mastodon != null && postTo.mastodon}
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-mastodon" viewBox="0 0 16 16">
               <path d="M11.19 12.195c2.016-.24 3.77-1.475 3.99-2.603.348-1.778.32-4.339.32-4.339 0-3.47-2.286-4.488-2.286-4.488C12.062.238 10.083.017 8.027 0h-.05C5.92.017 3.942.238 2.79.765c0 0-2.285 1.017-2.285 4.488l-.002.662c-.004.64-.007 1.35.011 2.091.083 3.394.626 6.74 3.78 7.57 1.454.383 2.703.463 3.709.408 1.823-.1 2.847-.647 2.847-.647l-.06-1.317s-1.303.41-2.767.36c-1.45-.05-2.98-.156-3.215-1.928a3.614 3.614 0 0 1-.033-.496s1.424.346 3.228.428c1.103.05 2.137-.064 3.188-.189zm1.613-2.47H11.13v-4.08c0-.859-.364-1.295-1.091-1.295-.804 0-1.207.517-1.207 1.541v2.233H7.168V5.89c0-1.024-.403-1.541-1.207-1.541-.727 0-1.091.436-1.091 1.296v4.079H3.197V5.522c0-.859.22-1.541.66-2.046.456-.505 1.052-.764 1.793-.764.856 0 1.504.328 1.933.983L8 4.39l.417-.695c.429-.655 1.077-.983 1.934-.983.74 0 1.336.259 1.791.764.442.505.661 1.187.661 2.046v4.203z"/>
             </svg>
-            <span>Toot</span>
+            {/if}
+            {#if postSettings.bluesky != null && postTo.bluesky}
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -3.268 64 68.414" width="16" height="16"><path fill="currentColor" d="M13.873 3.805C21.21 9.332 29.103 20.537 32 26.55v15.882c0-.338-.13.044-.41.867-1.512 4.456-7.418 21.847-20.923 7.944-7.111-7.32-3.819-14.64 9.125-16.85-7.405 1.264-15.73-.825-18.014-9.015C1.12 23.022 0 8.51 0 6.55 0-3.268 8.579-.182 13.873 3.805zm36.254 0C42.79 9.332 34.897 20.537 32 26.55v15.882c0-.338.13.044.41.867 1.512 4.456 7.418 21.847 20.923 7.944 7.111-7.32 3.819-14.64-9.125-16.85 7.405 1.264 15.73-.825 18.014-9.015C62.88 23.022 64 8.51 64 6.55c0-9.818-8.578-6.732-13.873-2.745z"/></svg>
+            {/if}
+
+            <span>Post</span>
           </div>
         </button>
         {/if}
+        
       </div>
       {/if}
     </div>  
