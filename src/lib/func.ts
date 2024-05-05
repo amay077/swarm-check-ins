@@ -20,11 +20,28 @@ export type SettingDataBluesky = {
     password: string,
   }
 };
-export type SettingData = SettingDataMastodon | SettingDataBluesky;
+
+export type SettingDataTwitter = {
+  type: 'twitter',
+  title: 'Twitter',
+  enabled: boolean,
+  access_token_response: {
+    token_type: string,
+    expires_in: number,
+    access_token: string,
+    refresh_token: string,
+    scope: string,
+  }
+};
+
+export type SettingData = SettingDataMastodon | SettingDataBluesky | SettingDataTwitter;
 
 export type SettingType = SettingData['type'];
 
-export type SettingDataType<T extends SettingType> = T extends 'mastodon' ? SettingDataMastodon : SettingDataBluesky;
+export type SettingDataType<T extends SettingType> = 
+  T extends 'mastodon' ? SettingDataMastodon :
+  T extends 'bluesky' ? SettingDataBluesky :
+  SettingDataTwitter;
 
 export function savePostSetting(data: SettingData) {
   localStorage.setItem(`sci_setting_${data.type}`, JSON.stringify(data));

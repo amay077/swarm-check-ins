@@ -2,7 +2,7 @@
 const config_dev = {
   CLIENT_ID: 'JXKR3OYSVKYPR4YSIYFUXUASGG2SXDIR1I2XDLIWIAMUK2ES',
   REDIRECT_URI: 'http://localhost:8080/#/auth',
-  API_ENDPOINT: `http://localhost:9999/.netlify/functions`,
+  API_ENDPOINT: `http://localhost:63406/.netlify/functions`,
 
   post_targets: {
     mastodon: {
@@ -17,7 +17,11 @@ const config_dev = {
         server: 'mstdn.jp',
         MASTODON_CLIENT_ID: 'gIAagB7-8KP6XEW1xHW3Wh3UjOH9A-ircwMlZX-80xw',
         MASTODON_CLIENT_SECRET: 'FlJm2oIaLBEJi4uWGk51ke_VPiwYB5lM5vCB5J5Cf9E',
-      }
+      },
+    },
+    twitter: {
+      client_id: 'cFdITnRJb2t6Z1FYTktjUmU0WFg6MTpjaQ',
+      redirect_uri: 'http%3A%2F%2Flocalhost%3A8080',
     }
   }
 }
@@ -41,6 +45,10 @@ const config_prod = {
         MASTODON_CLIENT_ID: 'gIAagB7-8KP6XEW1xHW3Wh3UjOH9A-ircwMlZX-80xw',
         MASTODON_CLIENT_SECRET: 'FlJm2oIaLBEJi4uWGk51ke_VPiwYB5lM5vCB5J5Cf9E',
       }
+    }, 
+    twitter: {
+      client_id: 'cFdITnRJb2t6Z1FYTktjUmU0WFg6MTpjaQ',
+      redirect_uri: 'https%3A%2F%2Famay077.github.io%2Fswarm-check-ins',
     }
   }}
 

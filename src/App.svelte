@@ -6,11 +6,13 @@
   let accessToken = localStorage.getItem('sci_accessToken');
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code'); 
+  const state = urlParams.get('state'); 
+  console.log(`FIXME h_oku 後で消す  -> state:`, state);
 
   if (accessToken != null) {
 
   
-  } else if (code) {
+  } else if (state == null && code) {
     (async () => {
       const res = await fetch(`${Config.API_ENDPOINT}/token?code=${code}`)
       const jsonData = await res.json();
@@ -49,7 +51,7 @@
   {#if accessToken == null}
     {#if code == null}
 	    <Auth />
-    {:else}    
+    {:else if state == null}    
       <span>Connecting...</span>
     {/if}
   
