@@ -71,10 +71,10 @@
       <div class="d-flex flex-column gap-1">
         <span>1.ユーザーIDとアプリパスワードを入力</span>
         <div class="d-flex flex-row gap-1">
-          <input class="form-control form-control-sm" type="text" bind:value={user}>
+          <input class="form-control form-control-sm" placeholder="Identifier(e.g. e-mail)" type="text" bind:value={user}>
         </div>
         <div class="d-flex flex-row gap-1">
-          <input class="form-control form-control-sm" type="password" bind:value={password}>
+          <input class="form-control form-control-sm" type="password" placeholder="App Password" bind:value={password}>
           <button class="btn btn-sm btn-primary" disabled={user?.length <= 0 || password?.length <= 0} style="width: 60px;" on:click={onApplyBSkySettings}>接続</button>
         </div>
       </div>

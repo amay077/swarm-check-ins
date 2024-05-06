@@ -11,7 +11,7 @@
 
   const onConnectToTwitter = () => {
 
-    const url = `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=${Config.post_targets.twitter.client_id}&redirect_uri=${Config.post_targets.twitter.redirect_uri}&scope=tweet.read%20tweet.write%20users.read&state=twitter_callback&code_challenge=challenge&code_challenge_method=plain`;
+    const url = `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=${Config.post_targets.twitter.client_id}&redirect_uri=${Config.post_targets.twitter.redirect_uri}&scope=tweet.read%20tweet.write%20users.read%20offline.access&state=twitter_callback&code_challenge=challenge&code_challenge_method=plain`;
     
     // url をこのタブで開く
     window.open(url, '_self');

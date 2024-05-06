@@ -27,11 +27,7 @@ export type SettingDataTwitter = {
   title: 'Twitter',
   enabled: boolean,
   access_token_response: {
-    token_type: string,
-    expires_in: number,
-    access_token: string,
     refresh_token: string,
-    scope: string,
   }
 };
 
