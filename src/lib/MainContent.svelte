@@ -203,7 +203,7 @@
       });
   
       // resume session
-      agent.resumeSession(postSettings.bluesky?.data?.sessionData!);
+      await agent.resumeSession(postSettings.bluesky?.data?.sessionData!);
 
       // creating richtext
       const rt = new RichText({
