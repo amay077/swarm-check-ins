@@ -199,9 +199,12 @@
   const postToBlueSky = async (text: string): Promise<boolean> => {
     try {
       const agent = new BskyAgent({
-        service: 'https://bsky.social'
+        service: 'https://bsky.social',
       });
   
+      // resume session
+      agent.resumeSession(postSettings.bluesky?.data?.sessionData!);
+
       // creating richtext
       const rt = new RichText({
         text,
@@ -213,12 +216,7 @@
         text: rt.text,
         facets: rt.facets,
         createdAt: new Date().toISOString(),
-      };    
-  
-      await agent.login({
-        identifier: 'okuokuoku@gmail.com',
-        password: 'k36i-nsi2-in2j-mg34'
-      });
+      };
   
       await agent.post(postRecord);       
       return true;

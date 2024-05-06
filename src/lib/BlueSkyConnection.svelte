@@ -10,8 +10,8 @@
   let bskyServer = 'https://bsky.social';
 
   let postSettings = loadPostSetting('bluesky');
-  let user = postSettings?.data?.user ?? '';
-  let password = postSettings?.data?.password ?? '';
+  let user = postSettings?.data?.sessionData?.email ?? '';
+  let password = '';
   
   const onApplyBSkySettings = async () => {
     console.log(`onApplyBSkySettings -> user:`, user);
@@ -30,8 +30,9 @@
       alert('BlueSky に接続できませんでした。');
       return;
     }
-
-    postSettings = { type: 'bluesky', title: 'BlueSky', enabled: true, data: { user, password } };
+    
+    const sessionData = res.data;
+    postSettings = { type: 'bluesky', title: 'BlueSky', enabled: true, data: { sessionData } };
     savePostSetting(postSettings);
     dispatch('onChange');
     alert('BlueSky に接続しました。');

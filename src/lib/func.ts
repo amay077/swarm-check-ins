@@ -1,3 +1,5 @@
+import type { AtpSessionData } from "@atproto/api";
+
 export type SettingDataMastodon = {
   type: 'mastodon',
   title: 'Mastodon',
@@ -16,8 +18,7 @@ export type SettingDataBluesky = {
   title: 'BlueSky',
   enabled: boolean,
   data: {
-    user: string,
-    password: string,
+    sessionData: AtpSessionData,
   }
 };
 
