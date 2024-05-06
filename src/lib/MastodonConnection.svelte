@@ -19,7 +19,7 @@
       console.error(`onApplyMastodonAccessToken -> settings:`, settings);
       return;
     }
-    const url = `https://${settings.server}/oauth/authorize?client_id=${settings.MASTODON_CLIENT_ID}&response_type=code&redirect_uri=urn:ietf:wg:oauth:2.0:oob&scope=write`;
+    const url = `https://${settings.server}/oauth/authorize?client_id=${settings.client_id}&response_type=code&redirect_uri=urn:ietf:wg:oauth:2.0:oob&scope=write`;
     
     // url を別タブで開く
     window.open(url, '_blank');
@@ -34,16 +34,10 @@
       return;
     }
 
-    const res = await fetch(`https://${settings.server}/oauth/token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: `client_id=${settings.MASTODON_CLIENT_ID}&client_secret=${settings.MASTODON_CLIENT_SECRET}&grant_type=authorization_code&code=${mastodonCode}&redirect_uri=urn:ietf:wg:oauth:2.0:oob`,
-    });
+    const res = await fetch(`${Config.API_ENDPOINT}/mastodon_token?server=${settings.server}&code=${mastodonCode}`);
 
     if (!res.ok) {
-      console.error(`FIXME h_oku 後で消す  -> onApplyMastodonAccessToken -> res:`, res);
+      console.error(`failed to fetch:`, res);
       return;
     }
     
@@ -52,7 +46,7 @@
     savePostSetting(postSettings);
     dispatch('onChange');
 
-    alert('Mastodon に接続しました。toot ボタンで投稿できます。');
+    alert('Mastodon に接続しました。');
   };
 </script>
 

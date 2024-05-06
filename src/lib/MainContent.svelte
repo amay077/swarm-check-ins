@@ -341,5 +341,5 @@
 
 
 <div class="footer">
-  <button class="disconnect_button" on:click="{disconnect}">Disconnect</button>
+  <button class="btn btn-outline-primary btn-sm mb-2" on:click="{disconnect}">Disconnect</button>
 </div>
