@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import MastodonConnection from "./MastodonConnection.svelte";
-  import { BskyAgent, RichText } from "@atproto/api";
+  import { BskyAgent, RichText, type AtpSessionData } from "@atproto/api";
   import BlueSkyConnection from "./BlueSkyConnection.svelte";
   import { loadPostSetting, savePostSetting, type SettingDataBluesky, type SettingDataMastodon, type SettingDataTwitter, type SettingType } from "./func";
   import TwitterConnection from "./TwitterConnection.svelte";
@@ -203,7 +203,15 @@
       });
   
       // resume session
-      await agent.resumeSession(postSettings.bluesky?.data?.sessionData!);
+
+
+      const res = await agent.resumeSession(postSettings.bluesky?.data?.sessionData!);
+
+      // refresh tokens
+      await agent.refreshSession();
+      postSettings.bluesky = { type: 'bluesky', title: 'BlueSky', enabled: true, data: { sessionData: agent.session as AtpSessionData } };
+      savePostSetting(postSettings.bluesky);
+
 
       // creating richtext
       const rt = new RichText({
