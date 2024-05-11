@@ -31,6 +31,7 @@
 
   let loading = true;
   let posting = false;
+  let postingVenueId: string | null = null;
 
   onMount(async () => {
     console.log(`onMount`);
@@ -121,6 +122,7 @@
 
   const post = async (checkin: any) => {
     posting = true;
+    postingVenueId = checkin?.venue?.id;
 
     const checkinDetail = await fetch(`https://api.foursquare.com/v2/checkins/${checkin.id}?oauth_token=${accessToken}&v=20230823`)
         .then(response => response.json());
@@ -373,12 +375,19 @@
         <span class="share_private">非公開</span>
       {:else}
       <div class="d-flex flex-row gap-2">
-        <button class="share_button" on:click="{() => copyToClipboard(x)}">
+        <button class="btn btn-primary" on:click="{() => copyToClipboard(x)}">
           {title}
         </button>
         
         {#if Array.from(Object.values(postTo)).some(x => x)}
-        <button class="share_button" on:click="{() => post(x)}" disabled={posting || Array.from(Object.values(postTo)).every(x => !x)}>
+        <button class="btn btn-primary" on:click="{() => post(x)}" disabled={posting || Array.from(Object.values(postTo)).every(x => !x)}>
+
+          {#if posting && postingVenueId == x?.venue?.id}
+          <div class="spinner-border spinner-border-sm" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <span>Posting...</span>
+          {:else}
           <div class="d-flex flex-row align-items-center gap-1">
             {#if postSettings.mastodon != null && postTo.mastodon}
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-mastodon" viewBox="0 0 16 16">
@@ -396,7 +405,11 @@
 
             <span>Post</span>
           </div>
+          {/if}
+
         </button>
+
+
         {/if}
         
       </div>
