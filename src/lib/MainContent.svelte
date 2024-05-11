@@ -241,7 +241,7 @@
         if (uri == null) return undefined;
 
         // fetchで画像データを取得
-        const res = await fetch('/swarm_ogp_image.png');
+        const res = await fetch('swarm_ogp_image.png');
         const buffer = await res.arrayBuffer();
         
         const ogInfo = {
