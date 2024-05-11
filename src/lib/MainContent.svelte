@@ -139,7 +139,7 @@
         }
         break;
         case 'bluesky':
-        if (!(await postToBlueSky(text))) {
+        if (!(await postToBlueSky(text, checkin))) {
           errors.push('BlueSky');
         }
         break;
@@ -196,7 +196,21 @@
     }
   };  
 
-  const postToBlueSky = async (text: string): Promise<boolean> => {
+  // RichTextからURLを取得する
+  async function findUrlInText(rt: RichText): Promise<string | null> {
+    if ((rt?.facets?.length ?? 0) < 1) return null;
+    for (const facet of rt?.facets ?? []) {
+      if (facet.features.length < 1) continue;
+      for (const feature of facet.features) {
+        if (feature.$type != "app.bsky.richtext.facet#link") continue;
+        else if (feature.uri == null) continue;
+        return feature.uri as string;
+      }
+    }
+    return null;
+  }
+
+  const postToBlueSky = async (text: string, checkin: any): Promise<boolean> => {
     try {
       const agent = new BskyAgent({
         service: 'https://bsky.social',
@@ -219,11 +233,55 @@
       });
   
       await rt.detectFacets(agent) // automatically detects mentions and links
+
+      const embed = await (async () => {
+        const uri =  await findUrlInText(rt);
+        if (uri == null) return undefined;
+
+        // fetchで画像データを取得
+        const res = await fetch('/swarm_ogp_image.png');
+        const buffer = await res.arrayBuffer();
+        
+        const ogInfo = {
+          siteUrl: uri,
+          type: 'getswarm:checkin',
+          description: `${checkin?.venue?.categories?.[0]?.name ?? ''} in ${checkin?.appAddress ?? ''}`,
+          title: checkin?.venue?.name ?? 'no name',
+          imageData: new Uint8Array(buffer),
+        };
+
+        // 画像をアップロードしてIDを取得
+        const uploadedRes = await agent.uploadBlob(ogInfo.imageData, {
+          encoding: "image/jpeg",
+        });
+
+        // OGP 付きで投稿
+        return {
+          $type: 'app.bsky.embed.external',
+          external: {
+            uri,
+            thumb: {
+              $type: "blob",
+              ref: {
+                $link: uploadedRes.data.blob.ref.toString(),
+              },
+              mimeType: uploadedRes.data.blob.mimeType,
+              size: uploadedRes.data.blob.size,
+            },            
+            title: ogInfo.title,
+            description: ogInfo.description,
+          }
+        }      
+      })();
+
+
+
       const postRecord = {
         $type: 'app.bsky.feed.post',
         text: rt.text,
         facets: rt.facets,
         createdAt: new Date().toISOString(),
+        embed,
       };
   
       await agent.post(postRecord);       
