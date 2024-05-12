@@ -1,47 +1,36 @@
-# Svelte + TS + Vite
+# Share I'm AT
 
-This template should help get you started developing with Svelte and TypeScript in Vite.
+FourSquare(Swarm) のチェックイン時の Twitter 連携が機能しなくなってしまったので、手動で「I'm at XXXX」と投稿するWebアプリを作りました。
 
-## Recommended IDE Setup
+## できること
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
+### 1. FourSquare(Swarm) の直近のチェックイン一覧を表示
 
-## Need an official Svelte framework?
+### 2. 各SNSへの投稿
 
-Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
+1. Twitter(X)
+2. Bluesky
+3. Mastodon(mastodon.cloud と mastdn.jp) ※他のサーバーを希望する場合は issue に投稿してください
 
-## Technical considerations
+### 3. 他のアプリへ共有
 
-**Why use this over SvelteKit?**
+### 4. クリップボードへコピー
 
-- It brings its own routing solution which might not be preferable for some users.
-- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
+## 使い方
 
-This template contains as little as possible to get started with Vite + TypeScript + Svelte, while taking into account the developer experience with regards to HMR and intellisense. It demonstrates capabilities on par with the other `create-vite` templates and is a good starting point for beginners dipping their toes into a Vite + Svelte project.
+### 1. Connect to Foursquare します
 
-Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
+### 2. 各SNSに接続します
 
-**Why `global.d.ts` instead of `compilerOptions.types` inside `jsconfig.json` or `tsconfig.json`?**
+### 3. ”Post” します、または Share/Copy します
 
-Setting `compilerOptions.types` shuts out all other types not explicitly listed in the configuration. Using triple-slash references keeps the default TypeScript setting of accepting type information from the entire workspace, while also adding `svelte` and `vite/client` type information.
 
-**Why include `.vscode/extensions.json`?**
+## できないこと
 
-Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
+1. Misskey への投稿(対応してもよいかも)
+2. 画像付きチェックインでも、投稿に画像は付きません
+3. 誰かと一緒に居るとき、with @xxx などと投稿されません
 
-**Why enable `allowJs` in the TS template?**
+## License
 
-While `allowJs: false` would indeed prevent the use of `.js` files in the project, it does not prevent the use of JavaScript syntax in `.svelte` files. In addition, it would force `checkJs: false`, bringing the worst of both worlds: not being able to guarantee the entire codebase is TypeScript, and also having worse typechecking for the existing JavaScript. In addition, there are valid use cases in which a mixed codebase may be relevant.
-
-**Why is HMR not preserving my local component state?**
-
-HMR state preservation comes with a number of gotchas! It has been disabled by default in both `svelte-hmr` and `@sveltejs/vite-plugin-svelte` due to its often surprising behavior. You can read the details [here](https://github.com/rixo/svelte-hmr#svelte-hmr).
-
-If you have state that's important to retain within a component, consider creating an external store which would not be replaced by HMR.
-
-```ts
-// store.ts
-// An extremely simple external store
-import { writable } from 'svelte/store'
-export default writable(0)
-```
+See [LICENSE](LICENSE.txt) .
