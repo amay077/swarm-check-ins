@@ -14,7 +14,7 @@
   
   } else if (state == null && code) {
     (async () => {
-      const res = await fetch(`${Config.API_ENDPOINT}/token?code=${code}`)
+      const res = await fetch(`${Config.API_ENDPOINT}/foursquare_token?code=${code}`)
       const jsonData = await res.json();
     
       const url = new URL(window.location.href);

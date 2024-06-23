@@ -26,8 +26,8 @@ export type SettingDataTwitter = {
   type: 'twitter',
   title: 'Twitter',
   enabled: boolean,
-  access_token_response: {
-    refresh_token: string,
+  token_data: {
+    token: string,
   }
 };
 

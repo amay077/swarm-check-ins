@@ -40,32 +40,7 @@
 
       const url = new URL(window.location.href);
       const params = new URLSearchParams(url.search);
-      if (params.get('state') == 'twitter_callback' && params.has('code')) {
-        const code = params.get('code') ?? '';
-        const res = await fetch(`${Config.API_ENDPOINT}/twitter_token?code=${code}`)
 
-        if (res.ok) {
-          const data = await res.json();
-          postSettings.twitter = { type: 'twitter', title: 'Twitter', enabled: true, access_token_response: { refresh_token: data.refresh_token } };
-          savePostSetting(postSettings.twitter);
-          postTo.twitter = true;
-          alert('Twitter に接続しました。');
-        } else {
-          console.error(`twitter 接続エラー -> res:`, res);
-          alert('Twitter に接続できませんでした。');
-        }
-        
-        const url = new URL(window.location.href);
-        params.delete('code');
-        params.delete('state');
-        url.hash = '';
-        url.search = params.toString();
-        history.replaceState(null, '', url.toString());
-
-
-      }      
-
-      
       // アクセストークンを使用してチェックイン一覧を取得する
       const response = await fetch(`https://api.foursquare.com/v2/users/self/checkins?oauth_token=${accessToken}&v=20230823&limit=100`);
       if (!response.ok) {
@@ -146,7 +121,7 @@
         }
         break;
       case 'twitter':
-        if (!(await postToTwritter(text))) {
+        if (!(await postToTwritter(text, []))) {
           errors.push('Twitter');
         }
         break;
@@ -294,33 +269,45 @@
     }
   }; 
 
-  const postToTwritter = async (text: string): Promise<boolean> => {
-    try {
-      const settings = postSettings.twitter!;
-      const refresh_token = settings.access_token_response.refresh_token;
+  const postToTwritter = async (text: string, images: string[]): Promise<boolean> => {
+  try {
+    const settings = postSettings.twitter!;
+    const token = settings.token_data.token;
 
-      const res = await fetch(`${Config.API_ENDPOINT}/twitter_post`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'text/plain',
-        },
-        body: JSON.stringify({ refresh_token, text }),
-      });
+    const imgs: string[] = [];
+    // for (const dataURI of images) {
+    //   const image = dataURI.split(',')[1]
+    //   const imageUrl = await uploadImage(image);
+    //   if (imageUrl != null) {
+    //     imgs.push(imageUrl);
+    //   }
+    // }
 
-      if (res.ok) {
-        const resJson = await res.json();
-        console.log(`FIXME h_oku 後で消す  -> postToTwritter -> resJson:`, resJson);
-        settings.access_token_response.refresh_token = resJson.refresh_token;
-        savePostSetting(settings);
-      } else {
-        return false;
-      }
-      return true;       
-    } catch (error) {
-      console.error(`postToMastodon -> error:`, error);
-      return false;       
+    /*
+    const images: string[] = [
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII',
+    ];
+    */
+    const res = await fetch(`${Config.API_ENDPOINT}/twitter_post`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain',
+      },
+      body: JSON.stringify({ token, text, images: imgs }),
+    });
+
+    if (res.ok) {
+      const resJson = await res.json();
+      console.log(`FIXME 後で消す  -> postToTwritter -> resJson:`, resJson);
+    } else {
+      return false;
     }
-  };    
+    return true;       
+  } catch (error) {
+    console.error(`postToMastodon -> error:`, error);
+    return false;       
+  }
+};     
 
   const onChangePostSettings = () => {
     postSettings.mastodon = loadPostSetting('mastodon');

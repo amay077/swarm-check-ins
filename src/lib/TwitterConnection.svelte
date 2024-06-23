@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
   import { Config } from "../config";
-  import { deletePostSetting, loadPostSetting } from "./func";
+  import { deletePostSetting, loadPostSetting, savePostSetting } from "./func";
 
   const dispatch = createEventDispatcher<{ onChange: void }>();
 
@@ -9,13 +9,49 @@
 
   let postSettings = loadPostSetting('twitter');
 
-  const onConnectToTwitter = () => {
+  let oAuthToken = '';
+  let pinCode = '';
+  let oAuthData = '';
 
-    const url = `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=${Config.post_targets.twitter.client_id}&redirect_uri=${Config.post_targets.twitter.redirect_uri}&scope=tweet.read%20tweet.write%20users.read%20offline.access&state=twitter_callback&code_challenge=challenge&code_challenge_method=plain`;
+  const onConnectToTwitter = async () => {
+
+    const res = await fetch(`${Config.API_ENDPOINT}/twitter_auth`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain',
+      },
+      body: JSON.stringify({ }),
+    });
+
+    const { url, oauth_token, data } = await res.json();
+    oAuthToken = oauth_token;
+    oAuthData = data;
+
+    // const redirect_uri = encodeURIComponent(Config.post_targets.twitter.redirect_uri);
+    // const url = `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=${Config.post_targets.twitter.client_id}&redirect_uri=${redirect_uri}&scope=tweet.read%20tweet.write%20users.read%20offline.access&state=twitter_callback&code_challenge=challenge&code_challenge_method=plain`;
     
-    // url をこのタブで開く
-    window.open(url, '_self');
+    // url を別タブで開く
+    window.open(url, '_blank');
   };
+
+  export async function onApplyTwitterPinCode() {
+
+    const res = await fetch(`${Config.API_ENDPOINT}/twitter_token?code=${pinCode}&oauth_token=${oAuthToken}&data=${oAuthData}`);
+    pinCode = '';
+
+    if (res.ok) {
+      const data = await res.json();
+      postSettings = { type: 'twitter', title: 'Twitter', enabled: true, token_data: { 
+        token: data.token,
+      }};
+      savePostSetting(postSettings);
+      dispatch('onChange');
+      alert('Twitter に接続しました。');
+    } else {
+      console.error(`twitter 接続エラー -> res:`, res);
+      alert('Twitter に接続できませんでした。');
+    }
+  }
 </script>
 
 <div>
@@ -51,8 +87,16 @@
     {:else}
     <div class="d-flex flex-column gap-1">
       <div class="d-flex flex-column gap-1">
-        <div class="d-flex flex-row gap-1">
+        <div class="d-flex flex-row align-items-center gap-1">
+          <span>1.</span>
           <button class="btn btn-sm btn-primary" style="width: 60px;" on:click={onConnectToTwitter}>接続</button>
+        </div>
+      </div>
+      <div class="d-flex flex-column gap-1">
+        <span>2.PINコードを貼り付けて設定</span>
+        <div class="d-flex flex-row gap-1">
+          <input class="form-control form-control-sm" type="text" bind:value={pinCode}>
+          <button class="btn btn-sm btn-primary" disabled={pinCode?.length <= 0} style="width: 60px;" on:click={onApplyTwitterPinCode}>設定</button>
         </div>
       </div>
     </div>
